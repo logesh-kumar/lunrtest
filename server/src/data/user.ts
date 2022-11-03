@@ -67,7 +67,7 @@ function createRandomUser(): User {
     fields: [],
     capacity: 40,
     defaultCapacity: true,
-    projectId: getRandomIntInclusive(1000, 1000000000),
+    projectId: getRandomIntInclusive(1000, 3000),
   };
 }
 

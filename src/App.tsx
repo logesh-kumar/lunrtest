@@ -40,7 +40,7 @@ function App() {
 
   // query lunr
   const results = useLunr(
-    `+userType:NATIVE +projectId:${projectId} firstName:${query}~3`,
+    `+projectId:${projectId} +firstName:${query}~1`,
     idx,
     _keyBy(users, "userId")
   );
