@@ -32,8 +32,7 @@ export const useLunr = <T = unknown>(
     return rawStore;
   }, [rawStore]);
 
-  return useMemo(() => {
-    console.log({ query });
+  return useMemo(() => {    
     if (!query || !index) return [];
 
     const results =

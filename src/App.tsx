@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import lunr from "lunr";
 import "./App.css";
 import { useLunr } from "./useLunr";
@@ -6,8 +6,9 @@ import { useQuery } from "react-query";
 import _keyBy from "lodash/keyBy";
 
 function App() {
-  const [query, setQuery] = useState<any>("aaa");
-  const { data = { users: [] } } = useQuery(
+  const [query, setQuery] = useState<any>("0");
+  const [projectId, setProjectId] = useState<any>("0");
+  const { data: users = [], isLoading } = useQuery(
     ["users"],
     () => {
       return fetch("http://localhost:3200/mentions/members").then((res) =>
@@ -19,19 +20,17 @@ function App() {
     }
   );
 
+  // create lunr index
   const idx = lunr(function () {
-    this.ref("emailId");
+    this.ref("userId");
     this.field("firstName");
-    this.field("lastName");
-    this.field("userId");
+    this.field("lastName");    
     this.field("userType");
-
-    data.users.forEach((d: any) => {
+    this.field("projectId");
+    users.forEach((d: any) => {
       this.add(d);
     });
   });
-
-  console.log(idx);
 
   const handleSearch = (e: any) => {
     if (e.target.value.length > 2) {
@@ -39,10 +38,16 @@ function App() {
     }
   };
 
+  // query lunr
   const results = useLunr(
-    `+userType:NATIVE +userId:90194 +firstName:${query}~3`,
+    `+userType:NATIVE +projectId:${projectId} firstName:${query}~3`,
     idx,
-    _keyBy(data.users, "emailId")
+    _keyBy(users, "userId")
+  );
+
+  const projectIds = useMemo(
+    () => users.map((user: any) => user.projectId),
+    [users]
   );
 
   return (
@@ -56,6 +61,16 @@ function App() {
         onChange={handleSearch}
       />
 
+     ProjectId: <input
+        onChange={(e) => {
+          setProjectId(e.target?.value || "0");
+        }}
+        style={{
+          marginTop: 20,
+        }}
+      />
+        
+    
       <div
         style={{
           marginTop: 20,
@@ -65,11 +80,15 @@ function App() {
         }}
       >
         <ul>
-          {results.map((r: any) => (
-            <li key={r.ref}>
-              {r.firstName} {r.lastName}
-            </li>
-          ))}
+          {results?.length ? (
+            results.map((r: any) => (
+              <li key={r.userId}>
+                {r.firstName} {r.lastName}
+              </li>
+            ))
+          ) : (
+            <li>No results</li>
+          )}
         </ul>
       </div>
     </div>
