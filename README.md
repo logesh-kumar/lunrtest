@@ -1,3 +1,7 @@
 # lunrtest
 
-Run ```npm run run-all```
+Run the followong commands
+```
+  npm i
+  npm run run-all
+```
